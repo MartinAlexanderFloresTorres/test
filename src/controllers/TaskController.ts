@@ -37,7 +37,7 @@ export class TaskController {
         try {
             res.status(200).json(req.task)
         } catch (error) {
-            res.status(500).json({error: 'Hubo un error'})
+            res.status(500).json({error: 'Tarea no encontrada'})
         }
     }
 

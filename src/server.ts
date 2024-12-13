@@ -4,8 +4,10 @@ import morgan from "morgan";
 import cors from 'cors'
 
 import { connectDB } from "./config/db";
-import projectRoutes from "./routes/projectRouter"
 import { corsConfig } from "./config/cors";
+import projectRoutes from "./routes/projectRouter"
+import authRouter from "./routes/authRouter"
+
 
 
 
@@ -25,6 +27,7 @@ app.use(express.json())
 
 //ROUTES
 
+app.use('/api/auth',authRouter)
 app.use('/api/projects',projectRoutes)
 
 export default app

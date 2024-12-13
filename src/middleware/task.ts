@@ -15,6 +15,7 @@ export async function taskExists(req : Request , res : Response, next : NextFunc
     try {
         
           const { taskId } = req.params
+          console.log(taskId)
           const task = await Task.findById(taskId)
             if (!task) {
                 const error = new Error('Tarea no encontrada')
@@ -24,7 +25,7 @@ export async function taskExists(req : Request , res : Response, next : NextFunc
         next()
     } catch (error) {
 
-        res.status(500).json({error: 'Hubo un error'})
+        res.status(500).json({error: 'Tarea no encontrada'})  // TODO revisar porque esta entrando en catht en ves e estar cumpliendo la condicion anterior
         
     }
 }
