@@ -2,7 +2,7 @@ import type { Request, Response, NextFunction } from "express";
 
 import Task, { Itask } from "../models/Task";
 
-// añadiendo un type de proyecte a la request para que nio me salte el error que de que request no tiene este type por ello utilizo la interface para tomar todos los existestes y añadir este
+// añadiendo un type de proyect a la request para que no me salte el error que de que request no tiene este type por ello utilizo la interface para tomar todos los existestes y añadir este
 declare global {
     namespace Express {
         interface Request {

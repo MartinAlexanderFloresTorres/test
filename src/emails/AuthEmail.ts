@@ -34,7 +34,7 @@ export class AuthEmail {
             html:`<p> Hola: ${user.name} has solicidato un cambio de contrasenha. Si no fuiste tu que lo solicitaste
                       entre en contacto con nosotros. 
                       Tu codigo es : <b>${user.token}</b> 
-                      ingresalo en el siguiente enlace. <a href="${process.env.FRONTEND_URL}/auth/new-password">restablecer contrasenha </a>.
+                      ingresalo en el siguiente enlace. <a href="${process.env.FRONTEND_URL}/auth/new-password/">restablecer contrasenha </a>.
                       Expira en <b>10min</b> .  </p> 
             
             `

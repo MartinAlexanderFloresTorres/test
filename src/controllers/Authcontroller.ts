@@ -4,6 +4,7 @@ import { checkPassword, hashPassword } from "../utils/auth";
 import Token from "../models/token";
 import { genarateToken } from "../utils/token";
 import { AuthEmail } from "../emails/AuthEmail";
+import { generateJWT } from "../utils/jwt";
 
 export class AuthController {
   static createAccount = async (req: Request, res: Response) => {
@@ -98,7 +99,9 @@ export class AuthController {
         res.status(404).json({ error: error.message });
         return
       }
-      res.send('autenticado')
+
+      const tokenJWT = generateJWT({id: user.id})
+      res.send(tokenJWT)
 
     } catch (error) {
       res
@@ -170,9 +173,53 @@ export class AuthController {
       });
 
       
-      res.send("Revisa tu email para instrucciones");
+      return res.send("Revisa tu email para instrucciones");
     } catch (error) {
       res.status(500).json({ error: "Hubo un Error al restablecer la contrasenha intentalo mas tarde" });
     }
   };
+
+  static validateToken = async (req: Request, res: Response) => {
+    try {
+      const { token } = req.body;
+      const tokenExist = await Token.findOne({ token });
+      if (!tokenExist) {
+        const error = new Error("Token no valido o expirado,solicite otro.");
+        return res.status(404).json({ error: error.message });
+      }
+      
+        return res.send("Token valido, ya puedes restablecer el password");
+    } catch (error) {
+      res
+        .status(500)
+        .json({
+          error: "Hubo un Error al confirmar el Token, contacte con RH.",
+        });
+    }
+  };
+  static updatePasswordWithToken = async (req: Request, res: Response) => {
+    try {
+      const { token } = req.params;
+      const tokenExist = await Token.findOne({ token });
+      if (!tokenExist) {
+        const error = new Error("Token no valido o expirado,solicite otro.");
+        return res.status(404).json({ error: error.message });
+      }
+      
+        const user =await User.findById(tokenExist.user)
+        const {password} = req.body
+        user.password = await hashPassword(password)
+
+        await Promise.allSettled([user.save(),tokenExist.deleteOne()])
+
+        return res.send("El password se modifico correctamente");
+    } catch (error) {
+      res
+        .status(500)
+        .json({
+          error: "Hubo un Error al confirmar el Token, contacte con RH.",
+        });
+    }
+  };
 }
+
