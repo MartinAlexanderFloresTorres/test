@@ -6,12 +6,14 @@ import { TaskController } from "../controllers/TaskController";
 import { projectExists } from "../middleware/project";
 import { taskBelongsToProject, taskExists } from "../middleware/task";
 import { authenticate } from "../middleware/auth";
+import { TeamMemberController } from "../controllers/TeamController";
 
 
 const router = Router()
 
+router.use(authenticate) //  como todos mis endpoints tendran ruta protegida evito estar poniendo el middleware en todos los endP.
+
 router.post('/',
-    authenticate,
     body('projectName')
         .notEmpty().withMessage('El nombre del Proyecto es Obligatorio'),
     body('clientName')
@@ -45,7 +47,7 @@ router.put('/:id',
         ProjectController.deleteProject)
 
 
-//?  Routes for Tasks
+//  Routes for Tasks
 
 router.param('projectId',projectExists) //estoy utlizando la funcion de param para especificar que cada vez que tennga un projectid como params ejecute el middleware validateProjectExists para no tener que ponerlo en todas las rutas y repertirlo
 
@@ -96,5 +98,33 @@ router.post('/:projectId/tasks/:taskId/status',
     handleInputsErrors,
     TaskController.updateTaskStatus
 
+    
 )
+
+/** Routes for Teams */
+
+router.get('/:projectId/team/',TeamMemberController.getProjectTeam)
+
+router.post('/:projectId/team/find',
+    body('email').isEmail().toLowerCase().withMessage('Email no valido'),
+    handleInputsErrors,
+    TeamMemberController.findMemberByEmail
+
+)
+router.post('/:projectId/team/',
+    body('id')
+    .isMongoId().withMessage('ID no valido'),
+    handleInputsErrors,
+    TeamMemberController.addMemberById
+
+)
+router.delete('/:projectId/team/',
+    body('id')
+    .isMongoId().withMessage('ID no valido'),
+    handleInputsErrors,
+    TeamMemberController.removeMemberById
+
+)
+
+
 export default router

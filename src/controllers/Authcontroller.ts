@@ -209,9 +209,9 @@ export class AuthController {
         const user =await User.findById(tokenExist.user)
         const {password} = req.body
         user.password = await hashPassword(password)
-
+  
         await Promise.allSettled([user.save(),tokenExist.deleteOne()])
-
+  
         return res.send("El password se modifico correctamente");
     } catch (error) {
       res
@@ -220,6 +220,9 @@ export class AuthController {
           error: "Hubo un Error al confirmar el Token, contacte con RH.",
         });
     }
+  };
+  static user = async (req: Request, res: Response) => {
+    return res.json(req.user)
   };
 }
 
