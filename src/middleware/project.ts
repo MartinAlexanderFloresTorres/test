@@ -1,5 +1,5 @@
 import type { Request, Response, NextFunction } from "express";
-import Project, { Iproject } from "../models/Project";
+import  Project, { Iproject } from "../models/Project";
 
 // añadiendo un type de proyecte a la request para que nio me salte el error que de que request no tiene este type por ello utilizo la interface para tomar todos los existestes y añadir este
 declare global {
