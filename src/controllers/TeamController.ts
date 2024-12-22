@@ -18,7 +18,7 @@ export class TeamMemberController {
                 //Find User
                 const user = (await User.findOne({email}).select('name email id'))
                 if(!user){
-                    const error = new Error('Ussuario no encontrado')
+                    const error = new Error('Usuario no encontrado')
                    return res.status(404).json({error:error.message})
                 }
                 res.json(user)
@@ -43,13 +43,13 @@ export class TeamMemberController {
         }
 
         static removeMemberById = async (req : Request,res : Response) =>{
-            const {id} = req.body
+            const {idUser} = req.params
 
-            if(!req.project.team.some(team => team.toString() === id.toString())){
+            if(!req.project.team.some(team => team.toString() === idUser.toString())){
                 const error = new Error('El Usuario no existe en este proyecto')
                 return res.status(409).json({error:error.message})
             }
-                req.project.team = req.project.team.filter( teamMember => teamMember.toString() !== id)
+                req.project.team = req.project.team.filter( teamMember => teamMember.toString() !== idUser)
                 await req.project.save()
                 res.send('Usuario Eliminado Correctamente')
         }
