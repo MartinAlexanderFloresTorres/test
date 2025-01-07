@@ -10,15 +10,21 @@ const taskStatus = {
 } as const // when put in the object as const i only read object
 
 
-export type taskStatus = typeof taskStatus[keyof typeof taskStatus]
+export type TaskStatus = typeof taskStatus[keyof typeof taskStatus]
 
 //Interface
-export interface Itask extends  Document  {
+export interface ITask extends  Document  {
     name: string,
     description: string,
     project: Types.ObjectId,
-    status: taskStatus,
+    status: TaskStatus,
+    completedBy: {
+        user: Types.ObjectId,
+        status: TaskStatus
+    }[],
+    notes: Types.ObjectId[]
 }
+
 //Schema moongose
 export const TaskSchema: Schema = new Schema({
     name: {
@@ -39,8 +45,28 @@ export const TaskSchema: Schema = new Schema({
         type: String,
         enum: Object.values(taskStatus), // le paso al enum los valores de objeto construido
         default: taskStatus.PENDING
-    }
+    },
+    completedBy :[
+        {
+            user: {
+                type: Types.ObjectId,
+                ref: 'User',
+                default: null 
+            },
+            status: {
+                type: String,
+                enum: Object.values(taskStatus),
+                default: taskStatus.PENDING
+            }
+        }
+    ],
+    notes:[
+        {
+            type: Types.ObjectId,
+            ref: 'Note'
+        }
+    ]
 },{timestamps:true})
 
-const Task = mongoose.model<Itask>('Task', TaskSchema)
+const Task = mongoose.model<ITask>('Task', TaskSchema)
 export default Task

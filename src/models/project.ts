@@ -1,12 +1,12 @@
 import mongoose, { Schema, Document, PopulatedDoc, Types } from "mongoose";
-import { Itask } from "./Task";
+import { ITask } from "./Task";
 import { IUser } from "./User";
 
-export interface Iproject extends Document {
+export interface IProject extends Document {
   projectName: string;
   clientName: string;
   description: string;
-  tasks: PopulatedDoc<Itask & Document>[]; // estoy relacionando las tareas con su poryecto y especificando via generic que type tendra cada tarea
+  tasks: PopulatedDoc<ITask & Document>[]; // estoy relacionando las tareas con su poryecto y especificando via generic que type tendra cada tarea
   manager: PopulatedDoc<IUser> & Document;
   team: PopulatedDoc<IUser & Document>[];
 }
@@ -49,5 +49,5 @@ const ProjectSchema: Schema = new Schema(
 );
 
 //conect the interface with Schema the moongose
-const Project = mongoose.model<Iproject>("Project", ProjectSchema);
+const Project = mongoose.model<IProject>("Project", ProjectSchema);
 export default Project;
