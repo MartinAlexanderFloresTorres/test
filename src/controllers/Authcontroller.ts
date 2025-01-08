@@ -1,7 +1,7 @@
 import type { Response, Request } from "express";
-import User from "../models/User";
+import Token from "@models/token";
+import User from "@models/User";
 import { checkPassword, hashPassword } from "../utils/auth";
-import Token from "../models/token";
 import { genarateToken } from "../utils/token";
 import { AuthEmail } from "../emails/AuthEmail";
 import { generateJWT } from "../utils/jwt";
