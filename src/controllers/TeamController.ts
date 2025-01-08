@@ -1,6 +1,6 @@
 import type { Request,Response } from "express"
-import User from "../models/User"
-import Project from "../models/Project"
+import User from "models/User"
+import Project from "models/Project"
 
 export class TeamMemberController {
 
