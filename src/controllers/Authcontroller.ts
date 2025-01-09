@@ -1,10 +1,12 @@
 import type { Response, Request } from "express";
-import Token from "@models/token";
-import User from "@models/User";
+
 import { checkPassword, hashPassword } from "../utils/auth";
 import { genarateToken } from "../utils/token";
 import { AuthEmail } from "../emails/AuthEmail";
 import { generateJWT } from "../utils/jwt";
+import User from "../models/User";
+import Token from "../models/token";
+
 
 export class AuthController {
   static createAccount = async (req: Request, res: Response) => {

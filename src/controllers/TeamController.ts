@@ -1,6 +1,7 @@
-import Project from "@models/Project"
-import User from "@models/User"
+
 import type { Request,Response } from "express"
+import Project from "../models/Project"
+import User from "../models/User"
 
 
 

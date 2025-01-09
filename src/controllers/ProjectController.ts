@@ -1,5 +1,6 @@
-import Project from "@models/Project";
+
 import type { Request, Response } from "express";
+import Project from "../models/Project";
 
 
 
