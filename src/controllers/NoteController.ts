@@ -1,25 +1,60 @@
-import type { Request,Response } from "express"
-import Note, { INotes } from "../models/Notes"
+import type { Request, Response } from "express";
+import Note, { INotes } from "../models/Notes";
+import { Types } from "mongoose";
 
-
-
+type NoteParams = { 
+    noteId: Types.ObjectId
+}
 export class NoteController {
+  static createNote = async (req: Request<{}, {}, INotes>, res: Response) => {
+    // puedo tipar los request como los response por un generiq  asi evito los any de lo que estoy recibiedno
+    const { content } = req.body;
+    const note = new Note();
+    note.content = content;
+    note.createdBy = req.user.id;
+    note.task = req.task.id;
 
-    static createNote = async (req : Request<{},{},INotes>,res : Response) => { // puedo tipar los request como los response por un generiq  asi evito los any de lo que estoy recibiedno 
-        const {content} =req.body
-        const note = new Note()
-        note.content = content
-        note.createdBy = req.user.id
-        note.task = req.task.id
+    req.task.notes.push(note.id);
 
-        req.task.notes.push(note.id)
+    try {
+      Promise.allSettled([req.task.save(), note.save()]);
+      res.send("Nota creada Correctamente");
+    } catch (error) {
+      res.status(500).json({ error: "Hubo un Error" });
+    }
+  };
 
-        try {
-            Promise.allSettled([req.task.save(),note.save()])
-            res.send('Nota creada Correctamente')
-        } catch (error) {
-            res.status(500).json({error:'Hubo un Error'})
-        }
+  static getTaskNotes = async (req: Request, res: Response) => {
+   
+    try {
+      const notes = await Note.find({ task: req.task.id });
+      res.json(notes);
+    } catch (error) {
+      res.status(500).json({ error: "Hubo un Error" });
+    }
+  };
+
+  static deleteNotes = async (req: Request<NoteParams>, res: Response) => {
+
+    const {noteId} = req.params
+
+    const note = await Note.findById(noteId)
+
+    if(!note){
+        const error = new Error ('Nota no encontrada')
+        return res.status(404).json({error: error.message})
     }
 
+    if(note.createdBy.toString() !== req.user.id.toString()) {
+        const error = new Error('Accion no valida')
+        return res.status(409).json({error:error.message})
+    }
+    req.task.notes = req.task.notes.filter( note => note.toString() !== noteId.toString())
+    try {
+        await Promise.allSettled([req.task.save(),note.deleteOne()])
+        res.send("Nota eliminada")
+    } catch (error) {
+        res.status(500).json({ error: "Hubo un Error" });
+    }
+  }
 }

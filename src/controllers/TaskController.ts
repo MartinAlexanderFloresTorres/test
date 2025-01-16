@@ -1,8 +1,5 @@
-
 import type { Request, Response } from "express";
 import Task from "../models/Task";
-
-
 
 export class TaskController {
   static createdTask = async (req: Request, res: Response) => {
@@ -32,11 +29,17 @@ export class TaskController {
   };
 
   static getTaskByID = async (req: Request, res: Response) => {
+ 
     try {
-      const task = await Task.findById(req.task.id).populate({
-        path: "completedBy.user",
-        select: "id name email",
-      });
+      const task = await Task.findById(req.task._id)
+        .populate({
+          path: "completedBy.user",
+          select: "id name email",
+        })
+        .populate({
+          path: "notes",
+          populate: { path: "createdBy", select: "id name email" },
+        });
 
       res.status(200).json(task);
     } catch (error) {
@@ -73,9 +76,9 @@ export class TaskController {
       req.task.status = status;
       const data = {
         user: req.user.id,
-        status
-      }
-      req.task.completedBy.push(data)
+        status,
+      };
+      req.task.completedBy.push(data);
       await req.task.save();
       res.status(200).send("Tarea Actualizada");
     } catch (error) {
