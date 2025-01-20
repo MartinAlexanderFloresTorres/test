@@ -1,5 +1,7 @@
 import type { Request, Response } from "express";
-import Project from "../models/Project";
+import Project from "../models/Project"
+
+
 
 export class ProjectController {
   static createdProjects = async (req: Request, res: Response) => {
