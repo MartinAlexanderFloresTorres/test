@@ -1,4 +1,5 @@
 import mongoose, { Schema, Document,Types } from "mongoose";
+import Note from "./Notes";
 
 
 const taskStatus = {
@@ -68,5 +69,12 @@ export const TaskSchema: Schema = new Schema({
     ]
 },{timestamps:true})
 
+// Middleware
+// con este middleware consigo apagar las notas relacionadas a los tareas que tambien he apagado. 
+TaskSchema.pre('deleteOne',{document: true, query:false}, async function() {
+    const taskId = this._id
+    if(!taskId) return
+    await Note.deleteMany({task:taskId})
+})
 const Task = mongoose.model<ITask>('Task', TaskSchema)
 export default Task

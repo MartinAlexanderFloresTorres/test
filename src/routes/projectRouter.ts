@@ -42,9 +42,12 @@ router.get(
   ProjectController.getProjectById
 );
 
+router.param("projectId", projectExists); //estoy utlizando la funcion de param para especificar que cada vez que tennga un projectid como params ejecute el middleware validateProjectExists para no tener que ponerlo en todas las rutas y repertirlo
+
+
 router.put(
-  "/:id",
-  param("id").isMongoId().withMessage("Id no valido"),
+  "/:projectId",
+  param("projectId").isMongoId().withMessage("Id no valido"),
   body("projectName")
     .notEmpty()
     .withMessage("El nombre del Proyecto es Obligatorio"),
@@ -55,19 +58,20 @@ router.put(
     .notEmpty()
     .withMessage("La description del Proyecto es Obligatorio"),
   handleInputsErrors,
+  hasAuthorization,
   ProjectController.updateProject
 );
 
 router.delete(
-  "/:id",
-  param("id").isMongoId().withMessage("Id no valido"),
+  "/:projectId",
+  param("projectId").isMongoId().withMessage("Id no valido"),
   handleInputsErrors,
+  hasAuthorization,
   ProjectController.deleteProject
 );
 
 //  Routes for Tasks
 
-router.param("projectId", projectExists); //estoy utlizando la funcion de param para especificar que cada vez que tennga un projectid como params ejecute el middleware validateProjectExists para no tener que ponerlo en todas las rutas y repertirlo
 
 router.post(
   "/:projectId/tasks",

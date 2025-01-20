@@ -7,7 +7,6 @@ import { generateJWT } from "../utils/jwt";
 import User from "../models/User";
 import Token from "../models/token";
 
-
 export class AuthController {
   static createAccount = async (req: Request, res: Response) => {
     try {
@@ -37,7 +36,7 @@ export class AuthController {
         token: token.token,
       });
 
-      await Promise.allSettled([token.save(),user.save()]);
+      await Promise.allSettled([token.save(), user.save()]);
       res.send("Cuenta creada, revisa tu email para confirmala.");
     } catch (error) {
       res.status(500).json({ error: "Hubo un Error al crear la cuenta" });
@@ -58,11 +57,9 @@ export class AuthController {
       await Promise.allSettled([user.save(), tokenExist.deleteOne()]);
       res.send("Cuenta confirmada correctamente");
     } catch (error) {
-      res
-        .status(500)
-        .json({
-          error: "Hubo un Error al confirmar la cuenta, contacte con RH.",
-        });
+      res.status(500).json({
+        error: "Hubo un Error al confirmar la cuenta, contacte con RH.",
+      });
     }
   };
 
@@ -73,7 +70,7 @@ export class AuthController {
       if (!user) {
         const error = new Error("Usuario no encontrado");
         res.status(404).json({ error: error.message });
-        return
+        return;
       }
       if (!user.confirmed) {
         const token = new Token();
@@ -88,23 +85,24 @@ export class AuthController {
           token: token.token,
         });
 
-        const error = new Error("la cuenta no ha sido confirmada,te hemos reinvidado un codigo a tu email para que puedeas confirmar tu cuenta");
+        const error = new Error(
+          "la cuenta no ha sido confirmada,te hemos reinvidado un codigo a tu email para que puedeas confirmar tu cuenta"
+        );
         res.status(401).json({ error: error.message });
-        return
+        return;
       }
 
       //comprobar el password
 
-      const isPasswordCorrect = await checkPassword(password,user.password)
-      if (!isPasswordCorrect){
+      const isPasswordCorrect = await checkPassword(password, user.password);
+      if (!isPasswordCorrect) {
         const error = new Error("Password Incorrecto");
         res.status(404).json({ error: error.message });
-        return
+        return;
       }
 
-      const tokenJWT = generateJWT({id: user.id})
-      res.send(tokenJWT)
-
+      const tokenJWT = generateJWT({ id: user.id });
+      res.send(tokenJWT);
     } catch (error) {
       res
         .status(500)
@@ -112,22 +110,22 @@ export class AuthController {
     }
   };
 
-  static  requestTokenConfirmation = async (req: Request, res: Response) => {
+  static requestTokenConfirmation = async (req: Request, res: Response) => {
     try {
       const { email } = req.body;
 
-      //Existe Usuario ? 
+      //Existe Usuario ?
       const user = await User.findOne({ email });
       if (!user) {
         const error = new Error("Este usuario no esta registrado");
         res.status(404).json({ error: error.message });
-        return
+        return;
       }
 
-      if(user.confirmed){
+      if (user.confirmed) {
         const error = new Error("Este usuario ya esta confirmado");
         res.status(403).json({ error: error.message });
-        return
+        return;
       }
 
       //Generar el token de confirmacion
@@ -142,30 +140,30 @@ export class AuthController {
         token: token.token,
       });
 
-      await Promise.allSettled([token.save(),/* user.save() */]);
+      await Promise.allSettled([token.save() /* user.save() */]);
       res.send("Te hemos enviado un Nuevo token a tu Email");
     } catch (error) {
       res.status(500).json({ error: "Hubo un Error al crear la cuenta" });
     }
   };
 
-  static  forgotPassword = async (req: Request, res: Response) => {
+  static forgotPassword = async (req: Request, res: Response) => {
     try {
       const { email } = req.body;
-  
-      //Existe Usuario ? 
+
+      //Existe Usuario ?
       const user = await User.findOne({ email });
       if (!user) {
         const error = new Error("Este usuario no esta registrado");
         res.status(404).json({ error: error.message });
-        return
+        return;
       }
 
       //Generar el token de confirmacion
       const token = new Token();
       token.token = genarateToken();
       token.user = user.id;
-      await token.save()
+      await token.save();
 
       // Enviando email de Cambio de contrasenha
       AuthEmail.sendPasswordResetToken({
@@ -174,10 +172,12 @@ export class AuthController {
         token: token.token,
       });
 
-      
       return res.send("Revisa tu email para instrucciones");
     } catch (error) {
-      res.status(500).json({ error: "Hubo un Error al restablecer la contrasenha intentalo mas tarde" });
+      res.status(500).json({
+        error:
+          "Hubo un Error al restablecer la contrasenha intentalo mas tarde",
+      });
     }
   };
 
@@ -189,14 +189,12 @@ export class AuthController {
         const error = new Error("Token no valido o expirado,solicite otro.");
         return res.status(404).json({ error: error.message });
       }
-      
-        return res.send("Token valido, ya puedes restablecer el password");
+
+      return res.send("Token valido, ya puedes restablecer el password");
     } catch (error) {
-      res
-        .status(500)
-        .json({
-          error: "Hubo un Error al confirmar el Token, contacte con RH.",
-        });
+      res.status(500).json({
+        error: "Hubo un Error al confirmar el Token, contacte con RH.",
+      });
     }
   };
   static updatePasswordWithToken = async (req: Request, res: Response) => {
@@ -207,24 +205,78 @@ export class AuthController {
         const error = new Error("Token no valido o expirado,solicite otro.");
         return res.status(404).json({ error: error.message });
       }
-      
-        const user =await User.findById(tokenExist.user)
-        const {password} = req.body
-        user.password = await hashPassword(password)
-  
-        await Promise.allSettled([user.save(),tokenExist.deleteOne()])
-  
-        return res.send("El password se modifico correctamente");
+
+      const user = await User.findById(tokenExist.user);
+      const { password } = req.body;
+      user.password = await hashPassword(password);
+
+      await Promise.allSettled([user.save(), tokenExist.deleteOne()]);
+
+      return res.send("El password se modifico correctamente");
     } catch (error) {
-      res
-        .status(500)
-        .json({
-          error: "Hubo un Error al confirmar el Token, contacte con RH.",
-        });
+      res.status(500).json({
+        error: "Hubo un Error al confirmar el Token, contacte con RH.",
+      });
     }
   };
   static user = async (req: Request, res: Response) => {
-    return res.json(req.user)
+    return res.json(req.user);
+  };
+
+  static updateProfile = async (req: Request, res: Response) => {
+    const { name, email } = req.body;
+    const { id } = req.user;
+    const userExists = await User.findOne({ email });
+
+    if (userExists && userExists.id.toString() !== id.toString()) {
+      const error = new Error("Este email ya esta registrado");
+      return res.status(409).json({ error: error.message });
+    }
+
+    req.user.name = name;
+    req.user.email = email;
+
+    try {
+      await req.user.save();
+      return res.send(" Perfil actualizado correctamente");
+    } catch (error) {
+      return res.status(500).send("Hubo un Error al actualizar tu perfil");
+    }
+  };
+
+  static updatePassword = async (req: Request, res: Response) => {
+    const { current_password, password } = req.body;
+    const { id } = req.user;
+    const user = await User.findById(id);
+
+    const isPasswordCorrect = await checkPassword(
+      current_password,
+      user.password
+    );
+    if (!isPasswordCorrect) {
+      const error = new Error("La contraseña actual no es correcta");
+      return res.status(409).json({ error: error.message });
+    }
+
+    try {
+      user.password = await hashPassword(password);
+      await user.save();
+      return res.send("Contraseña cambiada correctamente");
+    } catch (error) {
+      return res.status(500).send("Hubo un Error al actualizar tu contraseña");
+    }
+  };
+
+  static checkPasswordForDelete = async (req: Request, res: Response) => {
+    const { password } = req.body;
+    const { id } = req.user;
+    const user = await User.findById(id);
+
+    const isPasswordCorrect = await checkPassword(password, user.password);
+    if (!isPasswordCorrect) {
+      const error = new Error("La contraseña no es correcta");
+      return res.status(401).json({ error: error.message });
+    }
+    return res.send("Contraseña correcta");
   };
 }
-
