@@ -1,44 +1,43 @@
 import { transporter } from "../config/nodemailer"
 
-
-interface Iemail {
-    email:string,
-    name: string,
+interface IEmail {
+    email: string
+    name: string
     token: string
 }
 
 export class AuthEmail {
-
-    static sendConfirmationEamil = async (user : Iemail) =>{
-        await transporter.sendMail({
-            from: 'UpTASK <admin@uptask.com>',
+    static sendConfirmationEmail = async ( user : IEmail ) => {
+        const info = await transporter.sendMail({
+            from: 'UpTask <admin@uptask.com>',
             to: user.email,
-            subject: 'Uptask-Confirma tu cuenta',
-            text:'Uptask-Confirma tu cuenta',
-            html:`<p> Hola: ${user.name} has creado una cuenta en UpTask, ya casi todo esta listo, solo debes confirmar tu cuenta. 
-                      Tu codigo es : <b>${user.token}</b> 
-                      ingresalo en el siguiente enlace. <a href="${process.env.FRONTEND_URL}/auth/confirm-account">Confirma tu cuenta </a>.
-                      Expira en <b>10min</b> .  </p> 
-            
+            subject: 'UpTask - Confirma tu cuenta',
+            text: 'UpTask - Confirma tu cuenta',
+            html: `<p>Hola: ${user.name}, has creado tu cuenta en UpTask, ya casi esta todo listo, solo debes confirmar tu cuenta</p>
+                <p>Visita el siguiente enlace:</p>
+                <a href="${process.env.FRONTEND_URL}/auth/confirm-account">Confirmar cuenta</a>
+                <p>E ingresa el código: <b>${user.token}</b></p>
+                <p>Este token expira en 10 minutos</p>
             `
-
         })
+
+        console.log('Mensaje enviado', info.messageId)
     }
 
-    static sendPasswordResetToken = async (user : Iemail) =>{
-        await transporter.sendMail({
-            from: 'UpTASK <admin@uptask.com>',
+    static sendPasswordResetToken = async ( user : IEmail ) => {
+        const info = await transporter.sendMail({
+            from: 'UpTask <admin@uptask.com>',
             to: user.email,
-            subject: 'Uptask-Restabler Contrasenha',
-            text:'Uptask-Restablecer Contrasenha',
-            html:`<p> Hola: ${user.name} has solicidato un cambio de contrasenha. Si no fuiste tu que lo solicitaste
-                      entre en contacto con nosotros. 
-                      Tu codigo es : <b>${user.token}</b> 
-                      ingresalo en el siguiente enlace. <a href="${process.env.FRONTEND_URL}/auth/new-password/">restablecer contrasenha </a>.
-                      Expira en <b>10min</b> .  </p> 
-            
+            subject: 'UpTask - Reestablece tu password',
+            text: 'UpTask - Reestablece tu password',
+            html: `<p>Hola: ${user.name}, has solicitado reestablecer tu password.</p>
+                <p>Visita el siguiente enlace:</p>
+                <a href="${process.env.FRONTEND_URL}/auth/new-password/${user.token}">Reestablecer Password</a>
+                <p>E ingresa el código: <b>${user.token}</b></p>
+                <p>Este token expira en 10 minutos</p>
             `
-
         })
+
+        console.log('Mensaje enviado', info.messageId)
     }
 }
