@@ -1,13 +1,11 @@
-import type { Response, Request } from "express";
+import type { Response, Request } from 'express';
 
-import { checkPassword, hashPassword } from "../utils/auth";
-import { genarateToken } from "../utils/token";
-import { AuthEmail } from "../emails/AuthEmail";
-import { generateJWT } from "../utils/jwt";
-import User from "../models/User";
-import Token from "../models/Token";
-
-
+import { checkPassword, hashPassword } from '../utils/auth';
+import { genarateToken } from '../utils/token';
+import { AuthEmail } from '../emails/AuthEmail';
+import { generateJWT } from '../utils/jwt';
+import User from '../models/User';
+import Token from '../models/Token';
 
 export class AuthController {
   static createAccount = async (req: Request, res: Response) => {
@@ -17,7 +15,7 @@ export class AuthController {
       //prevenir duplicados
       const userExists = await User.findOne({ email });
       if (userExists) {
-        const error = new Error("Este Eamil ya esta registrado");
+        const error = new Error('Este Eamil ya esta registrado');
         res.status(409).json({ error: error.message });
       }
 
@@ -39,9 +37,9 @@ export class AuthController {
       });
 
       await Promise.allSettled([token.save(), user.save()]);
-      res.send("Cuenta creada, revisa tu email para confirmala.");
+      res.send('Cuenta creada, revisa tu email para confirmala.');
     } catch (error) {
-      res.status(500).json({ error: "Hubo un Error al crear la cuenta" });
+      res.status(500).json({ error: 'Hubo un Error al crear la cuenta' });
     }
   };
 
@@ -50,17 +48,17 @@ export class AuthController {
       const { token } = req.body;
       const tokenExist = await Token.findOne({ token });
       if (!tokenExist) {
-        const error = new Error("Token no valido o expirado,solicite otro.");
+        const error = new Error('Token no valido o expirado,solicite otro.');
         return res.status(404).json({ error: error.message });
       }
       const user = await User.findById(tokenExist.user);
       user.confirmed = true;
 
       await Promise.allSettled([user.save(), tokenExist.deleteOne()]);
-      res.send("Cuenta confirmada correctamente");
+      res.send('Cuenta confirmada correctamente');
     } catch (error) {
       res.status(500).json({
-        error: "Hubo un Error al confirmar la cuenta, contacte con RH.",
+        error: 'Hubo un Error al confirmar la cuenta, contacte con RH.',
       });
     }
   };
@@ -70,7 +68,7 @@ export class AuthController {
       const { email, password } = req.body;
       const user = await User.findOne({ email });
       if (!user) {
-        const error = new Error("Usuario no encontrado");
+        const error = new Error('Usuario no encontrado');
         res.status(404).json({ error: error.message });
         return;
       }
@@ -87,9 +85,7 @@ export class AuthController {
           token: token.token,
         });
 
-        const error = new Error(
-          "la cuenta no ha sido confirmada,te hemos reinvidado un codigo a tu email para que puedeas confirmar tu cuenta"
-        );
+        const error = new Error('la cuenta no ha sido confirmada,te hemos reinvidado un codigo a tu email para que puedeas confirmar tu cuenta');
         res.status(401).json({ error: error.message });
         return;
       }
@@ -98,7 +94,7 @@ export class AuthController {
 
       const isPasswordCorrect = await checkPassword(password, user.password);
       if (!isPasswordCorrect) {
-        const error = new Error("Password Incorrecto");
+        const error = new Error('Password Incorrecto');
         res.status(404).json({ error: error.message });
         return;
       }
@@ -106,9 +102,7 @@ export class AuthController {
       const tokenJWT = generateJWT({ id: user.id });
       res.send(tokenJWT);
     } catch (error) {
-      res
-        .status(500)
-        .json({ error: "Hubo un Error de inicio de sesion, contacte con RH." });
+      res.status(500).json({ error: 'Hubo un Error de inicio de sesion, contacte con RH.' });
     }
   };
 
@@ -119,13 +113,13 @@ export class AuthController {
       //Existe Usuario ?
       const user = await User.findOne({ email });
       if (!user) {
-        const error = new Error("Este usuario no esta registrado");
+        const error = new Error('Este usuario no esta registrado');
         res.status(404).json({ error: error.message });
         return;
       }
 
       if (user.confirmed) {
-        const error = new Error("Este usuario ya esta confirmado");
+        const error = new Error('Este usuario ya esta confirmado');
         res.status(403).json({ error: error.message });
         return;
       }
@@ -143,9 +137,9 @@ export class AuthController {
       });
 
       await Promise.allSettled([token.save() /* user.save() */]);
-      res.send("Te hemos enviado un Nuevo token a tu Email");
+      res.send('Te hemos enviado un Nuevo token a tu Email');
     } catch (error) {
-      res.status(500).json({ error: "Hubo un Error al crear la cuenta" });
+      res.status(500).json({ error: 'Hubo un Error al crear la cuenta' });
     }
   };
 
@@ -156,7 +150,7 @@ export class AuthController {
       //Existe Usuario ?
       const user = await User.findOne({ email });
       if (!user) {
-        const error = new Error("Este usuario no esta registrado");
+        const error = new Error('Este usuario no esta registrado');
         res.status(404).json({ error: error.message });
         return;
       }
@@ -174,11 +168,10 @@ export class AuthController {
         token: token.token,
       });
 
-      return res.send("Revisa tu email para instrucciones");
+      return res.send('Revisa tu email para instrucciones');
     } catch (error) {
       res.status(500).json({
-        error:
-          "Hubo un Error al restablecer la contrasenha intentalo mas tarde",
+        error: 'Hubo un Error al restablecer la contrasenha intentalo mas tarde',
       });
     }
   };
@@ -188,14 +181,14 @@ export class AuthController {
       const { token } = req.body;
       const tokenExist = await Token.findOne({ token });
       if (!tokenExist) {
-        const error = new Error("Token no valido o expirado,solicite otro.");
+        const error = new Error('Token no valido o expirado,solicite otro.');
         return res.status(404).json({ error: error.message });
       }
 
-      return res.send("Token valido, ya puedes restablecer el password");
+      return res.send('Token valido, ya puedes restablecer el password');
     } catch (error) {
       res.status(500).json({
-        error: "Hubo un Error al confirmar el Token, contacte con RH.",
+        error: 'Hubo un Error al confirmar el Token, contacte con RH.',
       });
     }
   };
@@ -204,7 +197,7 @@ export class AuthController {
       const { token } = req.params;
       const tokenExist = await Token.findOne({ token });
       if (!tokenExist) {
-        const error = new Error("Token no valido o expirado,solicite otro.");
+        const error = new Error('Token no valido o expirado,solicite otro.');
         return res.status(404).json({ error: error.message });
       }
 
@@ -214,10 +207,10 @@ export class AuthController {
 
       await Promise.allSettled([user.save(), tokenExist.deleteOne()]);
 
-      return res.send("El password se modifico correctamente");
+      return res.send('El password se modifico correctamente');
     } catch (error) {
       res.status(500).json({
-        error: "Hubo un Error al confirmar el Token, contacte con RH.",
+        error: 'Hubo un Error al confirmar el Token, contacte con RH.',
       });
     }
   };
@@ -231,7 +224,7 @@ export class AuthController {
     const userExists = await User.findOne({ email });
 
     if (userExists && userExists.id.toString() !== id.toString()) {
-      const error = new Error("Este email ya esta registrado");
+      const error = new Error('Este email ya esta registrado');
       return res.status(409).json({ error: error.message });
     }
 
@@ -240,9 +233,9 @@ export class AuthController {
 
     try {
       await req.user.save();
-      return res.send(" Perfil actualizado correctamente");
+      return res.send(' Perfil actualizado correctamente');
     } catch (error) {
-      return res.status(500).send("Hubo un Error al actualizar tu perfil");
+      return res.status(500).send('Hubo un Error al actualizar tu perfil');
     }
   };
 
@@ -251,21 +244,18 @@ export class AuthController {
     const { id } = req.user;
     const user = await User.findById(id);
 
-    const isPasswordCorrect = await checkPassword(
-      current_password,
-      user.password
-    );
+    const isPasswordCorrect = await checkPassword(current_password, user.password);
     if (!isPasswordCorrect) {
-      const error = new Error("La contraseña actual no es correcta");
+      const error = new Error('La contraseña actual no es correcta');
       return res.status(409).json({ error: error.message });
     }
 
     try {
       user.password = await hashPassword(password);
       await user.save();
-      return res.send("Contraseña cambiada correctamente");
+      return res.send('Contraseña cambiada correctamente');
     } catch (error) {
-      return res.status(500).send("Hubo un Error al actualizar tu contraseña");
+      return res.status(500).send('Hubo un Error al actualizar tu contraseña');
     }
   };
 
@@ -276,9 +266,9 @@ export class AuthController {
 
     const isPasswordCorrect = await checkPassword(password, user.password);
     if (!isPasswordCorrect) {
-      const error = new Error("La contraseña no es correcta");
+      const error = new Error('La contraseña no es correcta');
       return res.status(401).json({ error: error.message });
     }
-    return res.send("Contraseña correcta");
+    return res.send('Contraseña correcta');
   };
 }
